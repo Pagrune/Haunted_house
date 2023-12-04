@@ -23,10 +23,13 @@ const scene = new THREE.Scene()
  */
 const textureLoader = new THREE.TextureLoader()
 const brickColorTexture = textureLoader.load('/textures/bricks/color.jpg')
+const boisTexture = textureLoader.load('/textures/old-wood.jpg')
 const brickAmbientOcclusionTexture = textureLoader.load('/textures/bricks/ambientOcclusion.jpg')
 const grassColorTexture = textureLoader.load('/textures/grass/color.jpg')
 const graveColorTexture = textureLoader.load('/textures/grave/le-marbre.jpg')
-const roofColorTexture = textureLoader.load('/textures/toit/ardoise.jpg')
+const roofTexture = textureLoader.load('/textures/toit/wood-roof.jpg')
+const doorTexture = textureLoader.load('/textures/door/broken-door-2.jpg')
+const windowTexture = textureLoader.load('/textures/fenetre/windows.jpg')
 
 /**
  * House
@@ -34,38 +37,53 @@ const roofColorTexture = textureLoader.load('/textures/toit/ardoise.jpg')
 
 // create a group
 const house = new THREE.Group()
+const candles = new THREE.Group()
+scene.add(candles)
 scene.add(house)
 
 // Walls
+boisTexture.repeat.set(2, 5);
+boisTexture.wrapS = THREE.RepeatWrapping;
+boisTexture.wrapT = THREE.RepeatWrapping;
+
+// Mur avec texture répétée
 const walls = new THREE.Mesh(
     new THREE.BoxGeometry(4, 2.5, 4),
-    //use the texture
-    new THREE.MeshStandardMaterial({ map: brickColorTexture })
-    // new THREE.MeshStandardMaterial({ color: '#ac8e82' })
-)
-walls.position.y = 2.5 / 2
-house.add(walls)
+    new THREE.MeshStandardMaterial({ map: boisTexture })
+);
+
+walls.position.y = 2.5 / 2;
+house.add(walls);
 
 // Roof
+roofTexture.repeat.set(2, 5);
+roofTexture.wrapS = THREE.RepeatWrapping;
+roofTexture.wrapT = THREE.RepeatWrapping;
+
+// Créez le matériau du toit avec la texture
+const roofMaterial = new THREE.MeshStandardMaterial({
+    map: roofTexture,
+    side: THREE.DoubleSide
+});
+
+// Créez le toit avec la géométrie du cône et le nouveau matériau
 const roof = new THREE.Mesh(
     new THREE.ConeGeometry(3.5, 1, 4),
-    //use the texture
-    // new THREE.MeshStandardMaterial({ map: roofColorTexture })
-    //wrap the texture
-     new THREE.MeshStandardMaterial({ map: roofColorTexture, side: THREE.DoubleSide })
-    // new THREE.MeshStandardMaterial({ color: '#b35f45' })
-)
-roof.position.y = 2.5 + 0.5
-roof.rotation.y = Math.PI * 0.25
-house.add(roof)
+    roofMaterial
+);
+
+roof.position.y = 2.5 + 0.5;
+roof.rotation.y = Math.PI * 0.25;
+house.add(roof);
 
 // Door
 const door = new THREE.Mesh(
-    new THREE.PlaneGeometry(2, 2),
-    new THREE.MeshStandardMaterial({ color: '#aa7b7b' })
+    new THREE.PlaneGeometry(1, 2),
+    new THREE.MeshStandardMaterial({ map: doorTexture })
 )
 door.position.y = 1
 door.position.z = 2 + 0.01
+house.receiveShadow = true;
 house.add(door)
 
 // Bushes
@@ -84,6 +102,11 @@ const bush3 = new THREE.Mesh(bushGeometry, bushMaterial)
 bush3.scale.set(0.4, 0.4, 0.4)
 bush3.position.set(- 0.8, 0.1, 2.2)
 
+bush1.receiveShadow = true;
+bush2.receiveShadow = true;
+bush3.receiveShadow = true;
+
+
 // add bushes to the house
 house.add(bush1, bush2, bush3)
 
@@ -91,7 +114,7 @@ house.add(bush1, bush2, bush3)
 
 const chimney = new THREE.Mesh(
     new THREE.BoxGeometry(0.5, 1, 0.5),
-    new THREE.MeshStandardMaterial({ color: '#ac8e82' })
+    new THREE.MeshStandardMaterial({ map: brickColorTexture })
 )
 chimney.position.y = 2.5 + 0.5 + 0.5
 chimney.position.x = 0.75
@@ -132,30 +155,45 @@ floor.position.y = 0
 scene.add(floor)
 
 // window 
+// const windowMaterial = new THREE.MeshStandardMaterial({
+//     map: windowTexture,
+//     alphaMap: windowTexture, // Utilisez la même texture comme alphaMap
+//     transparent: true, // Activez la transparence
+// });
+
+// // Créez la fenêtre avec la géométrie du plan et le nouveau matériau
+// const window1 = new THREE.Mesh(
+//     new THREE.PlaneGeometry(1, 1.2),
+//     windowMaterial
+// );
+
+// // Assurez-vous que le matériau de la fenêtre utilise la transparence
+// windowMaterial.alphaMap = windowTexture;
+// windowMaterial.side = THREE.DoubleSide;
 const window1 = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.5, 0.5),
-    new THREE.MeshStandardMaterial({ color: '#ffffff' })
+    new THREE.PlaneGeometry(1, 1.2),
+    new THREE.MeshStandardMaterial({ map: windowTexture })
 )
 
 window1.position.y = 1.5
 window1.position.z = 2 + 0.01
-window1.position.x = -1.5
+window1.position.x = -1.2
 house.add(window1)
 
 const window2 = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.5, 0.5),
-    new THREE.MeshStandardMaterial({ color: '#ffffff' })
+    new THREE.PlaneGeometry(1, 1.2),
+    new THREE.MeshStandardMaterial({ map: windowTexture })
 )
 
 window2.position.y = 1.5
 window2.position.z = 2 + 0.01
-window2.position.x = 1.5
+window2.position.x = 1.2
 house.add(window2)
 
 // windows on each wall
 const window3 = new THREE.Mesh(
     new THREE.PlaneGeometry(1, 1),
-    new THREE.MeshStandardMaterial({ color: '#ffffff' })
+    new THREE.MeshStandardMaterial({ map: windowTexture })
 )
 
 window3.position.y = 1.5
@@ -179,9 +217,51 @@ grass.position.y = 0.01
 
 scene.add(grass)
 
+// Floating candles
+const candleGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.5, 20);
+const candleMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' });
+
+for (let i = 0; i < 10; i++) {
+    const candle = new THREE.Mesh(candleGeometry, candleMaterial);
+    // add candle wick
+    const candleWickGeometry = new THREE.BoxGeometry(0.05, 0.2, 0.05);
+    const candleWickMaterial = new THREE.MeshStandardMaterial({ color: '#ffff00' });
+    const candleWick = new THREE.Mesh(candleWickGeometry, candleWickMaterial);
+    candleWick.position.y = 0.25 / 2 + 0.25;
+    candle.add(candleWick);
+
+    candle.position.x = (Math.random() - 0.5) * 10;
+    candle.position.y = 0.25 / 2 + 3;
+    candle.position.z = (Math.random() - 0.5) * 20;
+    const scale = Math.random();
+    candle.scale.set(scale, scale, scale);
+
+    // Ajoutez une flamme à la bougie
+    const flameGeometry = new THREE.ConeGeometry(0.2, 0.5, 20);
+    const flameMaterial = new THREE.MeshStandardMaterial({ emissive: '#ff3300', emissiveIntensity: 2 });
+    const flame = new THREE.Mesh(flameGeometry, flameMaterial);
+    flame.position.y = 0.25 / 2 + 0.25 + 0.5 / 2;
+    candle.add(flame);
+
+   // Ajoutez une lumière à la flamme pour simuler la lueur
+   const mainLight = new THREE.PointLight('#ffff00', 3, 5, 2);
+   mainLight.position.y = 0.25 / 2 + 0.25 + 0.5 / 2; // Ajustez la position de la lumière
+   flame.add(mainLight); // Attachez la lumière principale à la flamme
+
+   // Ajoutez une deuxième lumière pour le halo blanc
+   const haloLight = new THREE.PointLight('#ffffff', 1, 5, 2);
+   haloLight.position.y = 0.25 / 2 + 0.25 + 0.5 / 2; // Ajustez la position de la lumière
+   flame.add(haloLight);
+    
+    // Ajoutez la bougie à la scène
+    candles.add(candle);
+}
+
+
+
 //stones
 const stoneGeometry = new THREE.SphereGeometry(0.5, 10, 10)
-const stoneMaterial = new THREE.MeshStandardMaterial({ color: '#a9c388' })
+const stoneMaterial = new THREE.MeshStandardMaterial({ color: '#383E42' })
 
 
 // generate random stones
@@ -242,6 +322,10 @@ fontLoader.load(
 
         // stoneGrave.add(text);
 
+        //shadow
+        stoneGrave.castShadow = true;
+        stoneGrave.receiveShadow = true;
+
         house.add(stoneGrave);
     }
     }
@@ -257,21 +341,46 @@ const fog1 = new THREE.FogExp2('#262837', 0.1);
 scene.fog = fog1;
 // scene.fog = fog;
 
+
+//received shadows
+walls.receiveShadow = true;
+walls.castShadow = true;
+roof.receiveShadow = true;
+roof.castShadow = true;
+floor.receiveShadow = true;
+floor.castShadow = true;
+window1.receiveShadow = true;
+window1.castShadow = true;
+window2.receiveShadow = true;
+window2.castShadow = true;
+window3.receiveShadow = true;
+window3.castShadow = true;
+chimney.receiveShadow = true;
+chimney.castShadow = true;
+grass.receiveShadow = true;
+grass.castShadow = true;
+
+
+
 /**
  * Lights
  */
 // Ambient light
-const ambientLight = new THREE.AmbientLight('#b9d5ff', 0.2)
+const ambientLight = new THREE.AmbientLight('#b9d5ff', 0.08)
 gui.add(ambientLight, 'intensity').min(0).max(1).step(0.001)
+// ambientLight.castShadow = true;
 scene.add(ambientLight)
 
 // Directional light
-const moonLight = new THREE.DirectionalLight('#b9d5ff', 1)
+const moonLight = new THREE.DirectionalLight('#b9d5ff', 0.4)
 moonLight.position.set(4, 5, - 2)
 gui.add(moonLight, 'intensity').min(0).max(1).step(0.001)
 gui.add(moonLight.position, 'x').min(- 5).max(5).step(0.001)
 gui.add(moonLight.position, 'y').min(- 5).max(5).step(0.001)
 gui.add(moonLight.position, 'z').min(- 5).max(5).step(0.001)
+moonLight.castShadow = true;
+moonLight.shadow.mapSize.width = 1024;
+moonLight.shadow.mapSize.height = 1024;
 scene.add(moonLight)
 
 // Door light with a point light
@@ -282,6 +391,14 @@ house.add(doorLight);
 // Ghost light with a point light light color
 const ghostLight = new THREE.PointLight('#ff00ff', 2, 3);
 scene.add(ghostLight);
+
+
+//shadows
+moonLight.castShadow = true;
+doorLight.castShadow = true;
+ghostLight.castShadow = true;
+
+
 
 /**
  * Sizes
@@ -326,8 +443,11 @@ controls.enableDamping = true
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
 
 /**
  * Animate
@@ -335,7 +455,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 const clock = new THREE.Clock()
 
 //smoke
-const smokeSpeed = 0.01; // Adjust the speed of the smoke rising
+const smokeSpeed = 0.05; // Adjust the speed of the smoke rising
 const smokeMaxHeight = 10; // Adjust the maximum height for the smoke
 
 const tick = () =>
@@ -362,6 +482,37 @@ const tick = () =>
     ghostLight.position.x = Math.sin(elapsedTime * 0.5) * 4;
     ghostLight.position.z = Math.cos(elapsedTime * 0.5) * 4;
     ghostLight.position.y = Math.sin(elapsedTime * 4) + 2;
+
+    const groundLevel = 0.25;
+    candles.children.forEach((candle, index) => {
+        const delta = Math.sin(elapsedTime + index * 0.5) * 0.1;
+    
+        // Mettez à jour la position en y
+        candle.position.y += delta;
+    
+        // Vérifiez si la bougie passe en dessous du niveau du sol
+        if (candle.position.y < groundLevel) {
+            candle.position.y = groundLevel; // Réinitialisez à la hauteur du sol
+        }
+    
+        // Mettez à jour les rotations et positions additionnelles
+        candle.rotation.z += delta * 0.5;
+        candle.rotation.x += delta * 0.5;
+        candle.position.x += delta * 0.5;
+
+        //light intensity variations
+        candle.children[0].intensity = 2 + delta * 3;
+        candle.children[1].intensity = 1 + delta * 2;
+
+    
+        // Vérifiez si la bougie passe à travers la maison
+        const intersectsHouse = candle.position.x > -2.5 && candle.position.x < 2.5 && candle.position.z > -2.5 && candle.position.z < 2.5;
+        if (intersectsHouse) {
+            candle.position.x = Math.random() * 10 - 5;
+            candle.position.z = Math.random() * 20 - 10;
+        }
+    });
+    
     
 
     // Call tick again on the next frame
